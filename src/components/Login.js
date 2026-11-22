@@ -54,10 +54,10 @@ export default function Login() {
               </div>
               <div className="text-muted">
                 <div>
-                  Email: <strong>admin@mystore.com</strong>
+                  Email: <strong>admin@gmail.com</strong>
                 </div>
                 <div>
-                  Pass: <strong>123456</strong>
+                  Pass: <strong>admin</strong>
                 </div>
               </div>
             </div>
