@@ -164,9 +164,12 @@ export default function Cart() {
                 </span>
               </div>
 
-              <button className="btn btn-primary w-100 py-2 fw-semibold mb-2">
+              <Link
+                to="/checkout"
+                className="btn btn-primary w-100 py-2 fw-semibold mb-2"
+              >
                 Proceed to Checkout
-              </button>
+              </Link>
 
               <Link to="/" className="btn btn-outline-secondary w-100 py-2">
                 Continue Shopping
