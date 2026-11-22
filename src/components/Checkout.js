@@ -15,7 +15,7 @@ function Checkout() {
     city: "",
     address: "",
     notes: "",
-    paymentMethod: "COD", // Cash on Delivery
+    paymentMethod: "COD", // COD أو STRIPE
   });
 
   const [submitting, setSubmitting] = useState(false);
@@ -24,7 +24,6 @@ function Checkout() {
     return acc + Number(item.price) * (item.quantity || 1);
   }, 0);
 
-  // لو السلة فارغة، نمنع البقاء في صفحة الدفع
   if (cart.length === 0) {
     return (
       <div className="container py-5 text-center my-5">
@@ -52,6 +51,32 @@ function Checkout() {
     };
 
     try {
+      // 1. في حالة الدفع عبر Stripe
+      if (customer.paymentMethod === "STRIPE") {
+        localStorage.setItem("pendingOrder", JSON.stringify(orderData));
+
+        const res = await fetch(
+          `${process.env.REACT_APP_API_URL}/api/orders/create-checkout-session`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(orderData),
+          },
+        );
+
+        const data = await res.json();
+
+        if (!res.ok || !data.url) {
+          throw new Error(data.message || "Failed to initialize payment");
+        }
+
+        window.location.href = data.url;
+        return;
+      }
+
+      // 2. في حالة الدفع عند الاستلام (COD)
       const res = await fetch(`${process.env.REACT_APP_API_URL}/api/orders`, {
         method: "POST",
         headers: {
@@ -177,8 +202,9 @@ function Checkout() {
                 />
               </div>
 
-              {/* طريقة الدفع */}
-              <div className="bg-light p-3 rounded-3 mb-4 border">
+              {/* خيارات الدفع */}
+              <h6 className="fw-bold mb-2">Payment Method</h6>
+              <div className="bg-light p-3 rounded-3 mb-4 border d-flex flex-column gap-3">
                 <div className="form-check">
                   <input
                     className="form-check-input"
@@ -197,6 +223,30 @@ function Checkout() {
                     Pay in cash when your order is delivered to your doorstep.
                   </div>
                 </div>
+
+                <hr className="my-0" />
+
+                <div className="form-check">
+                  <input
+                    className="form-check-input"
+                    type="radio"
+                    name="paymentMethod"
+                    id="stripe"
+                    checked={customer.paymentMethod === "STRIPE"}
+                    onChange={() =>
+                      setCustomer({ ...customer, paymentMethod: "STRIPE" })
+                    }
+                  />
+                  <label
+                    className="form-check-label fw-semibold"
+                    htmlFor="stripe"
+                  >
+                    💳 Credit / Debit Card (Stripe)
+                  </label>
+                  <div className="text-muted small">
+                    Secure online payment powered by Stripe (Test Mode).
+                  </div>
+                </div>
               </div>
 
               <button
@@ -205,8 +255,10 @@ function Checkout() {
                 disabled={submitting}
               >
                 {submitting
-                  ? "Placing Order..."
-                  : `Confirm Order ($${totalPrice.toFixed(2)})`}
+                  ? "Processing..."
+                  : customer.paymentMethod === "STRIPE"
+                    ? `Pay Now ($${totalPrice.toFixed(2)})`
+                    : `Confirm Order ($${totalPrice.toFixed(2)})`}
               </button>
             </form>
           </div>
