@@ -37,6 +37,30 @@ export default function Login() {
               <h3 className="fw-bold mb-1">Welcome Back</h3>
               <p className="text-muted small">Sign in to your account</p>
             </div>
+            {/* Demo Admin Box */}
+            <div className="alert alert-info border-0 rounded-3 p-3 mb-4 small">
+              <div className="d-flex justify-content-between align-items-center mb-1">
+                <span className="fw-bold text-dark">🔑 Demo Admin Account</span>
+                <button
+                  type="button"
+                  className="btn btn-sm btn-primary rounded-pill px-3 py-0"
+                  onClick={() => {
+                    setEmail("admin@gmail.com");
+                    setPassword("admin");
+                  }}
+                >
+                  Fill
+                </button>
+              </div>
+              <div className="text-muted">
+                <div>
+                  Email: <strong>admin@mystore.com</strong>
+                </div>
+                <div>
+                  Pass: <strong>123456</strong>
+                </div>
+              </div>
+            </div>
 
             {error && (
               <div className="alert alert-danger py-2 small" role="alert">
