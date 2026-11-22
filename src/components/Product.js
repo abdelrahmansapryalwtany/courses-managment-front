@@ -1,11 +1,15 @@
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { addToCart } from "../rtk/slices/cart-slice";
+import { Toast } from "../utils/toast";
+import { toggleWishlist } from "../rtk/slices/wishlist-slice";
 
 export default function Product(props) {
   const { product, showButton } = props;
   const dispatch = useDispatch();
   const cart = useSelector((state) => state.cart);
+  const wishlist = useSelector((state) => state.wishlist);
+  const isFavorite = wishlist.some((item) => item._id === product._id);
 
   // معرفة هل المنتج مضاف للسلة وكميته الحالية
   const cartItem = cart.find((item) => item._id === product._id);
@@ -14,6 +18,24 @@ export default function Product(props) {
     <div className="card h-100 border-0 shadow-sm rounded-4 overflow-hidden bg-white">
       {/* حاوية الصورة بخلفية هادئة */}
       <div className="position-relative bg-light p-3 text-center">
+        <button
+          type="button"
+          className="btn btn-light btn-sm rounded-circle position-absolute top-0 end-0 m-3 shadow-sm border"
+          style={{ width: "36px", height: "36px", zIndex: 2 }}
+          title={isFavorite ? "Remove from Wishlist" : "Add to Wishlist"}
+          onClick={() => {
+            dispatch(toggleWishlist(product));
+            Toast.fire({
+              icon: isFavorite ? "info" : "success",
+              title: isFavorite
+                ? "Removed from wishlist"
+                : "Added to wishlist!",
+            });
+          }}
+        >
+          {isFavorite ? "❤️" : "🤍"}
+        </button>
+
         {product.category && (
           <span className="badge bg-white text-secondary border rounded-pill position-absolute top-0 start-0 m-3 px-2 py-1 text-capitalize shadow-sm">
             {product.category}
@@ -79,7 +101,13 @@ export default function Product(props) {
           <div className="d-flex gap-2">
             <button
               className="btn btn-primary rounded-pill fw-semibold flex-fill"
-              onClick={() => dispatch(addToCart(product))}
+              onClick={() => {
+                dispatch(addToCart(product));
+                Toast.fire({
+                  icon: "success",
+                  title: "Added to cart!",
+                });
+              }}
             >
               🛒 Add {cartItem ? `(${cartItem.quantity})` : ""}
             </button>

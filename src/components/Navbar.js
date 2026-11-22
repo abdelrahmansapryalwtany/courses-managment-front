@@ -1,7 +1,13 @@
 import { NavLink } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { logout } from "../rtk/slices/auth-slice";
 function Navbar() {
   const cart = useSelector((state) => state.cart);
+  const { token, user } = useSelector((state) => state.auth);
+  const isAdmin = user?.role === "ADMIN" || user?.role === "MANAGER";
+  const wishlist = useSelector((state) => state.wishlist);
+  const dispatch = useDispatch();
+
   return (
     <nav
       className="navbar navbar-expand-lg bg-white border-bottom shadow-sm sticky-top py-3"
@@ -51,31 +57,58 @@ function Navbar() {
                 About
               </NavLink>
             </li>
-
-            <li className="nav-item">
-              <NavLink
-                to="/admin"
-                className={({ isActive }) =>
-                  `nav-link px-2 ${
-                    isActive ? "active fw-bold text-primary" : "text-dark"
-                  }`
-                }
-              >
-                Admin
-              </NavLink>
-            </li>
+            {isAdmin && (
+              <li className="nav-item">
+                <NavLink
+                  to="/admin"
+                  className={({ isActive }) =>
+                    `nav-link px-2 ${
+                      isActive ? "active fw-bold text-primary" : "text-dark"
+                    }`
+                  }
+                >
+                  Admin
+                </NavLink>
+              </li>
+            )}
           </ul>
 
-          <div className="d-flex">
+          <div className="d-flex align-items-center gap-2">
             <NavLink
               to="/cart"
               className="btn btn-outline-primary position-relative fw-semibold px-3 rounded-pill"
             >
-              🛒 Cart
-              <span className="badge bg-danger rounded-pill ms-2">
+              🛒 Cart{" "}
+              <span className="badge bg-danger rounded-pill ms-1">
                 {cart.length}
               </span>
             </NavLink>
+
+            <NavLink
+              to="/wishlist"
+              className="btn btn-outline-danger position-relative fw-semibold px-3 rounded-pill"
+            >
+              ❤️{" "}
+              <span className="badge bg-danger rounded-pill ms-1">
+                {wishlist.length}
+              </span>
+            </NavLink>
+
+            {token ? (
+              <button
+                className="btn btn-outline-danger fw-semibold px-3 rounded-pill"
+                onClick={() => dispatch(logout())}
+              >
+                Logout
+              </button>
+            ) : (
+              <NavLink
+                to="/login"
+                className="btn btn-primary fw-semibold px-3 rounded-pill"
+              >
+                Login
+              </NavLink>
+            )}
           </div>
         </div>
       </div>

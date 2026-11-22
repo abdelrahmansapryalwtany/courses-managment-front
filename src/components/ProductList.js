@@ -14,10 +14,14 @@ export default function ProductList() {
     currentPage,
     loading,
   } = useSelector((state) => state.products);
-
+  const [searchQuery, setSearchQuery] = useState("");
   // حالات الفلتر المحلية فقط
   const [limit, setLimit] = useState(10);
   const [selectedCategory, setSelectedCategory] = useState(null);
+
+  const filteredProducts = products.filter((product) =>
+    product.title.toLowerCase().includes(searchQuery.toLowerCase()),
+  );
 
   useEffect(() => {
     dispatch(fetchProducts({ page: 1, limit }));
@@ -48,6 +52,16 @@ export default function ProductList() {
       </div>
 
       {/* شريط الفلاتر وعدد المنتجات */}
+      <div className="mb-3">
+        <input
+          type="text"
+          className="form-control rounded-pill px-4 py-2 bg-light border-0"
+          placeholder="🔍 Search products by name..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
+
       <div className="card border-0 shadow-sm rounded-4 mb-4 bg-white">
         <div className="card-body p-3 p-md-4">
           <div className="d-flex flex-wrap justify-content-between align-items-center gap-3">
@@ -127,14 +141,22 @@ export default function ProductList() {
         <>
           {/* شبكة المنتجات */}
           <div className="row g-4">
-            {products.map((product) => (
-              <div
-                className="col-12 col-sm-6 col-md-4 col-lg-3"
-                key={product._id}
-              >
-                <Product product={product} showButton={true} />
+            {filteredProducts === 0 ? (
+              <div className="col-12">
+                <p className="text-muted text-center py-5">
+                  No products found matching your search.
+                </p>
               </div>
-            ))}
+            ) : (
+              filteredProducts.map((product) => (
+                <div
+                  className="col-12 col-sm-6 col-md-4 col-lg-3"
+                  key={product._id}
+                >
+                  <Product product={product} showButton={true} />
+                </div>
+              ))
+            )}
           </div>
 
           {/* أزرار التنقل بين الصفحات (Pagination) */}

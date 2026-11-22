@@ -67,12 +67,20 @@ function Admin() {
           </p>
         </div>
 
-        <Link
-          className="btn btn-success px-4 py-2 rounded-pill fw-semibold shadow-sm"
-          to="/add-product"
-        >
-          + Add New Product
-        </Link>
+        <div className="d-flex gap-2">
+          <Link
+            className="btn btn-outline-primary px-4 py-2 rounded-pill fw-semibold"
+            to="/admin/orders"
+          >
+            📦 View Orders
+          </Link>
+          <Link
+            className="btn btn-success px-4 py-2 rounded-pill fw-semibold shadow-sm"
+            to="/add-product"
+          >
+            + Add New Product
+          </Link>
+        </div>
       </div>
 
       <div className="card border-0 shadow-sm rounded-4 mb-4">

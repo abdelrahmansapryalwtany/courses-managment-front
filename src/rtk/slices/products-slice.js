@@ -37,44 +37,64 @@ export const fetchSingleProduct = createAsyncThunk(
     return data.data.product;
   },
 );
-
-// 4. إضافة منتج جديد
+// 4. إضافة منتج جديد (محمي بالتوكن)
 export const addProduct = createAsyncThunk(
   "productsSlice/addProduct",
-  async (formData) => {
+  async (formData, { getState }) => {
+    const token = getState().auth.token;
     const res = await fetch(`${process.env.REACT_APP_API_URL}/api/products`, {
       method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       body: formData,
     });
     const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Unauthorized");
     return data.data.product;
   },
 );
 
-// 5. تعديل منتج موجود
+// 5. تعديل منتج موجود (محمي بالتوكن)
 export const updateProduct = createAsyncThunk(
   "productsSlice/updateProduct",
-  async ({ productId, formData }) => {
+  async ({ productId, formData }, { getState }) => {
+    const token = getState().auth.token;
     const res = await fetch(
       `${process.env.REACT_APP_API_URL}/api/products/${productId}`,
       {
         method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
         body: formData,
       },
     );
     const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Unauthorized");
     return data.data.product;
   },
 );
 
-// 6. حذف منتج (أضفه مع باقي الـ Thunks في products-slice.js)
+// 6. حذف منتج (محمي بالتوكن)
 export const deleteProduct = createAsyncThunk(
   "productsSlice/deleteProduct",
-  async (productId) => {
-    await fetch(`${process.env.REACT_APP_API_URL}/api/products/${productId}`, {
-      method: "DELETE",
-    });
-    return productId; // نعيد الـ ID لحذفه فوراً من الـ State
+  async (productId, { getState }) => {
+    const token = getState().auth.token;
+    const res = await fetch(
+      `${process.env.REACT_APP_API_URL}/api/products/${productId}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.message || "Unauthorized");
+    }
+    return productId;
   },
 );
 
