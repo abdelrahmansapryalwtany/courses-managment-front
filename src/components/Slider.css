@@ -1,4 +1,62 @@
-.height-500 {
-    height: 500px;
-    object-fit: cover;
+.slider-image-wrapper {
+  position: relative;
+  height: 460px;
+  overflow: hidden;
+}
+
+.slider-img {
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 4s ease;
+}
+
+/* حركة تكبير ناعمة للصورة النشطة */
+.carousel-item.active .slider-img {
+  transform: scale(1.05);
+}
+
+/* تدرج لوني داكن من اليسار لضمان وضوح النصوص البيضاء على أي صورة */
+.slider-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.72) 0%,
+    rgba(0, 0, 0, 0.35) 55%,
+    rgba(0, 0, 0, 0.1) 100%
+  );
+}
+
+.carousel-caption {
+  top: 0;
+  bottom: 0;
+  left: 8%;
+  right: 8%;
+}
+
+/* تحسين شكل أسهم التنقل */
+.custom-carousel-btn {
+  width: 5%;
+}
+
+.custom-carousel-btn .carousel-control-prev-icon,
+.custom-carousel-btn .carousel-control-next-icon {
+  background-color: rgba(0, 0, 0, 0.45);
+  border-radius: 50%;
+  padding: 18px;
+  background-size: 55%;
+  transition: background-color 0.2s ease;
+}
+
+.custom-carousel-btn:hover .carousel-control-prev-icon,
+.custom-carousel-btn:hover .carousel-control-next-icon {
+  background-color: rgba(13, 110, 253, 0.9);
+}
+
+/* تقليل الارتفاع على شاشات الموبايل */
+@media (max-width: 768px) {
+  .slider-image-wrapper {
+    height: 300px;
+  }
 }
