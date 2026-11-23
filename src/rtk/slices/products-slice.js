@@ -3,10 +3,11 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 // 1. جلب كل المنتجات أو حسب التصنيف
 export const fetchProducts = createAsyncThunk(
   "productsSlice/fetchProducts",
-  async ({ category = null, page = 1, limit = 10 } = {}) => {
+  async ({ category = null, page = 1, limit = 9, search = "" } = {}) => {
+    const searchParam = search ? `&search=${encodeURIComponent(search)}` : "";
     const url = category
-      ? `${process.env.REACT_APP_API_URL}/api/products/category/${category}?page=${page}&limit=${limit}`
-      : `${process.env.REACT_APP_API_URL}/api/products?page=${page}&limit=${limit}`;
+      ? `${process.env.REACT_APP_API_URL}/api/products/category/${category}?page=${page}&limit=${limit}${searchParam}`
+      : `${process.env.REACT_APP_API_URL}/api/products?page=${page}&limit=${limit}${searchParam}`;
 
     const res = await fetch(url);
     const data = await res.json();
@@ -122,17 +123,18 @@ const productsSlice = createSlice({
       })
       .addCase(fetchProducts.fulfilled, (state, action) => {
         state.loading = false;
-        state.items = action.payload.products;
-        state.totalPages = action.payload.totalPages;
-        state.currentPage = action.payload.currentPage;
+        state.items = action.payload?.products || [];
+        state.totalPages = action.payload?.totalPages || 1;
+        state.currentPage = action.payload?.currentPage || 1;
       })
       .addCase(fetchProducts.rejected, (state) => {
         state.loading = false;
+        state.items = [];
       })
 
       // جلب التصنيفات
       .addCase(fetchCategories.fulfilled, (state, action) => {
-        state.categories = action.payload;
+        state.categories = action.payload || [];
       })
 
       // جلب منتج واحد

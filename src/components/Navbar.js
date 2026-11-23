@@ -57,6 +57,20 @@ function Navbar() {
                 About
               </NavLink>
             </li>
+            {token && (
+              <li className="nav-item">
+                <NavLink
+                  to="/my-orders"
+                  className={({ isActive }) =>
+                    `nav-link px-2 ${
+                      isActive ? "active fw-bold text-primary" : "text-dark"
+                    }`
+                  }
+                >
+                  My Orders
+                </NavLink>
+              </li>
+            )}
             {isAdmin && (
               <li className="nav-item">
                 <NavLink

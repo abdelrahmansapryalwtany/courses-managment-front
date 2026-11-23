@@ -19,7 +19,7 @@ export const fetchOrders = createAsyncThunk(
 // 2. تحديث حالة الطلب (محمي بالتوكن)
 export const updateOrderStatus = createAsyncThunk(
   "ordersSlice/updateOrderStatus",
-  async ({ orderId, status }, { getState }) => {
+  async ({ orderId, status, note }, { getState }) => {
     const token = getState().auth.token;
     const res = await fetch(
       `${process.env.REACT_APP_API_URL}/api/orders/${orderId}/status`,
@@ -29,7 +29,7 @@ export const updateOrderStatus = createAsyncThunk(
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({ status, note }),
       },
     );
     const data = await res.json();
@@ -52,7 +52,7 @@ const ordersSlice = createSlice({
       })
       .addCase(fetchOrders.fulfilled, (state, action) => {
         state.loading = false;
-        state.items = action.payload;
+        state.items = action.payload || [];
       })
       .addCase(fetchOrders.rejected, (state) => {
         state.loading = false;
