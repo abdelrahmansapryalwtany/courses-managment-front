@@ -37,28 +37,46 @@ export default function Login() {
               <h3 className="fw-bold mb-1">Welcome Back</h3>
               <p className="text-muted small">Sign in to your account</p>
             </div>
-            {/* Demo Admin Box */}
-            <div className="alert alert-info border-0 rounded-3 p-3 mb-4 small">
-              <div className="d-flex justify-content-between align-items-center mb-1">
-                <span className="fw-bold text-dark">🔑 Demo Admin Account</span>
+            {/* Demo Accounts Box */}
+            <div className="alert alert-light border rounded-4 p-3 mb-4 small">
+              <div className="fw-bold text-dark mb-2">🔑 Quick Demo Login</div>
+
+              <div className="d-flex justify-content-between align-items-center bg-white p-2 rounded-3 border mb-2">
+                <div>
+                  <span className="badge bg-danger-subtle text-danger me-1">
+                    ADMIN
+                  </span>
+                  <span className="text-muted">Full Access</span>
+                </div>
                 <button
                   type="button"
-                  className="btn btn-sm btn-primary rounded-pill px-3 py-0"
+                  className="btn btn-sm btn-outline-primary rounded-pill px-3 py-0"
                   onClick={() => {
                     setEmail("admin@gmail.com");
                     setPassword("admin");
                   }}
                 >
-                  Fill
+                  Fill Admin
                 </button>
               </div>
-              <div className="text-muted">
+
+              <div className="d-flex justify-content-between align-items-center bg-white p-2 rounded-3 border">
                 <div>
-                  Email: <strong>admin@gmail.com</strong>
+                  <span className="badge bg-warning-subtle text-warning-emphasis me-1">
+                    MANAGER
+                  </span>
+                  <span className="text-muted">Products & Orders</span>
                 </div>
-                <div>
-                  Pass: <strong>admin</strong>
-                </div>
+                <button
+                  type="button"
+                  className="btn btn-sm btn-outline-primary rounded-pill px-3 py-0"
+                  onClick={() => {
+                    setEmail("manager@gmail.com");
+                    setPassword("manager");
+                  }}
+                >
+                  Fill Manager
+                </button>
               </div>
             </div>
 
