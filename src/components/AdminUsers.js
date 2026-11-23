@@ -131,6 +131,17 @@ export default function AdminUsers() {
 
   return (
     <div className="container py-5">
+      {/* تنبيه يظهر للمدير فقط لتوضيح صلاحيات المشاهدة */}
+      {!isAdmin && (
+        <div className="alert alert-warning border-0 rounded-4 d-flex align-items-center gap-2 mb-4 shadow-sm">
+          <span className="fs-5">🔒</span>
+          <div className="small">
+            You are logged in as <strong>MANAGER</strong> (View-Only mode). Sign
+            in with an <strong>ADMIN</strong> account to change user roles or
+            delete accounts.
+          </div>
+        </div>
+      )}
       {/* رأس الصفحة */}
       <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
         <div>
@@ -220,7 +231,9 @@ export default function AdminUsers() {
                                 className="rounded-circle bg-primary text-white fw-bold d-flex align-items-center justify-content-center"
                                 style={{ width: "44px", height: "44px" }}
                               >
-                                {u.firstName?.[0]?.toUpperCase() || "U"}
+                                {u.firstName?.charAt(0)?.toUpperCase() ||
+                                  u.email?.charAt(0)?.toUpperCase() ||
+                                  "U"}
                               </div>
                             )}
 

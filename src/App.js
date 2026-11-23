@@ -22,6 +22,7 @@ import MyOrders from "./components/MyOrders";
 import AdminUsers from "./components/AdminUsers";
 import OrderDetails from "./components/OrderDetails";
 import FeaturesBar from "./components/FeaturesBar";
+import Profile from "./components/Profile";
 
 function App() {
   return (
@@ -50,6 +51,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="profile" element={<Profile />} />
           <Route path="orders/:orderId" element={<OrderDetails />} />
           <Route path="my-orders" element={<MyOrders />} />
           <Route path="payment-success" element={<PaymentSuccess />} />

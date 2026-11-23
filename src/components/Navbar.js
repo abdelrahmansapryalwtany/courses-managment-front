@@ -1,6 +1,7 @@
-import { NavLink } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../rtk/slices/auth-slice";
+import { NavLink, Link } from "react-router-dom";
+import { Toast } from "../utils/toast";
 function Navbar() {
   const cart = useSelector((state) => state.cart);
   const { token, user } = useSelector((state) => state.auth);
@@ -71,20 +72,34 @@ function Navbar() {
                 </NavLink>
               </li>
             )}
-            {isAdmin && (
-              <li className="nav-item">
+            <li className="nav-item">
+              {isAdmin ? (
                 <NavLink
                   to="/admin"
                   className={({ isActive }) =>
-                    `nav-link px-2 ${
-                      isActive ? "active fw-bold text-primary" : "text-dark"
-                    }`
+                    `nav-link px-2 ${isActive ? "active fw-bold text-primary" : "text-dark"}`
                   }
                 >
                   Admin
                 </NavLink>
-              </li>
-            )}
+              ) : (
+                <Link
+                  to="/login"
+                  className="nav-link px-2 text-muted"
+                  title="Login as Admin or Manager to access Dashboard"
+                  onClick={() =>
+                    Toast.fire({
+                      icon: "info",
+                      title:
+                        "Login with Demo Admin/Manager to access Dashboard",
+                      timer: 5000,
+                    })
+                  }
+                >
+                  Admin 🔒
+                </Link>
+              )}
+            </li>
           </ul>
 
           <div className="d-flex align-items-center gap-2">
@@ -109,12 +124,39 @@ function Navbar() {
             </NavLink>
 
             {token ? (
-              <button
-                className="btn btn-outline-danger fw-semibold px-3 rounded-pill"
-                onClick={() => dispatch(logout())}
-              >
-                Logout
-              </button>
+              <div className="d-flex align-items-center gap-2">
+                <Link
+                  to="/profile"
+                  className="btn btn-light border rounded-pill d-flex align-items-center gap-2 px-3 py-1 fw-semibold text-dark"
+                  title="My Profile"
+                >
+                  {user?.avatar ? (
+                    <img
+                      src={`${process.env.REACT_APP_API_URL}/uploads/${user.avatar}`}
+                      alt={user.firstName}
+                      className="rounded-circle object-fit-cover"
+                      style={{ width: "26px", height: "26px" }}
+                    />
+                  ) : (
+                    <span
+                      className="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center small fw-bold"
+                      style={{ width: "26px", height: "26px" }}
+                    >
+                      {user?.firstName?.charAt(0)?.toUpperCase() ||
+                        user?.email?.charAt(0)?.toUpperCase() ||
+                        "U"}
+                    </span>
+                  )}
+                  <span className="small">{user?.firstName || "Profile"}</span>
+                </Link>
+
+                <button
+                  className="btn btn-outline-danger fw-semibold px-3 rounded-pill"
+                  onClick={() => dispatch(logout())}
+                >
+                  Logout
+                </button>
+              </div>
             ) : (
               <NavLink
                 to="/login"

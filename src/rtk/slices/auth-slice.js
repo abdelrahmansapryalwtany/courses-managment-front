@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-// دالة بسيطة لفك تشفير الـ JWT واستخراج البيانات (id, email, role)
+// دالة فك تشفير التوكن واستخراج بيانات المستخدم
 const decodeToken = (token) => {
   try {
     const payload = token.split(".")[1];
@@ -41,7 +41,7 @@ export const loginUser = createAsyncThunk(
   },
 );
 
-// 2. إنشاء حساب جديد (يدعم رفع الصورة avatar عبر FormData)
+// 2. إنشاء حساب جديد
 export const registerUser = createAsyncThunk(
   "authSlice/registerUser",
   async (formData, { rejectWithValue }) => {
@@ -68,11 +68,40 @@ export const registerUser = createAsyncThunk(
   },
 );
 
+// 3. تحديث بيانات البروفايل والصورة الشخصية
+export const updateUserProfile = createAsyncThunk(
+  "authSlice/updateUserProfile",
+  async (formData, { getState, rejectWithValue }) => {
+    try {
+      const token = getState().auth.token;
+      const res = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/users/profile`,
+        {
+          method: "PATCH",
+          headers: { Authorization: `Bearer ${token}` },
+          body: formData,
+        },
+      );
+      const data = await res.json();
+
+      if (!res.ok) {
+        return rejectWithValue(data.message || "Failed to update profile");
+      }
+
+      const newToken = data.data.token;
+      localStorage.setItem("token", newToken);
+      return { token: newToken, user: decodeToken(newToken) };
+    } catch (error) {
+      return rejectWithValue(error.message || "Network error");
+    }
+  },
+);
+
 const authSlice = createSlice({
   name: "authSlice",
   initialState: {
     token: savedToken,
-    user: savedUser, // يحتوي على { id, email, role }
+    user: savedUser,
     loading: false,
     error: null,
   },
@@ -114,6 +143,20 @@ const authSlice = createSlice({
         state.user = action.payload.user;
       })
       .addCase(registerUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Update Profile
+      .addCase(updateUserProfile.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateUserProfile.fulfilled, (state, action) => {
+        state.loading = false;
+        state.token = action.payload.token;
+        state.user = action.payload.user;
+      })
+      .addCase(updateUserProfile.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
