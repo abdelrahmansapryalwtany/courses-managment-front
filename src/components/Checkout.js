@@ -6,6 +6,7 @@ import { clear } from "../rtk/slices/cart-slice";
 
 function Checkout() {
   const cart = useSelector((state) => state.cart);
+  const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -15,7 +16,7 @@ function Checkout() {
     city: "",
     address: "",
     notes: "",
-    paymentMethod: "COD", // COD أو STRIPE
+    paymentMethod: "COD",
   });
 
   const [submitting, setSubmitting] = useState(false);
@@ -40,9 +41,11 @@ function Checkout() {
     setSubmitting(true);
 
     const orderData = {
+      user: user?.id || null,
       customer,
       items: cart.map((item) => ({
         product: item._id,
+        image: item.image,
         title: item.title,
         price: item.price,
         quantity: item.quantity || 1,
@@ -51,7 +54,6 @@ function Checkout() {
     };
 
     try {
-      // 1. في حالة الدفع عبر Stripe
       if (customer.paymentMethod === "STRIPE") {
         localStorage.setItem("pendingOrder", JSON.stringify(orderData));
 
@@ -76,7 +78,6 @@ function Checkout() {
         return;
       }
 
-      // 2. في حالة الدفع عند الاستلام (COD)
       const res = await fetch(`${process.env.REACT_APP_API_URL}/api/orders`, {
         method: "POST",
         headers: {
@@ -121,8 +122,22 @@ function Checkout() {
         </p>
       </div>
 
+      {!user && (
+        <div className="alert alert-info border d-flex flex-wrap justify-content-between align-items-center gap-2 rounded-4 mb-4">
+          <span className="small">
+            👋 Checking out as a <strong>Guest</strong>. Want to save this order
+            to your account history?
+          </span>
+          <Link
+            to="/login"
+            className="btn btn-sm btn-outline-primary rounded-pill px-3 fw-semibold"
+          >
+            Sign In
+          </Link>
+        </div>
+      )}
+
       <div className="row g-4">
-        {/* فورم بيانات الشحن */}
         <div className="col-lg-7">
           <div className="card border-0 shadow-sm rounded-4 p-3 p-md-4">
             <h5 className="fw-bold mb-4">Shipping Information</h5>
@@ -202,7 +217,6 @@ function Checkout() {
                 />
               </div>
 
-              {/* خيارات الدفع */}
               <h6 className="fw-bold mb-2">Payment Method</h6>
               <div className="bg-light p-3 rounded-3 mb-4 border d-flex flex-column gap-3">
                 <div className="form-check">
@@ -244,7 +258,8 @@ function Checkout() {
                     💳 Credit / Debit Card (Stripe)
                   </label>
                   <div className="text-muted small">
-                    Secure online payment powered by Stripe (Test Mode).
+                    Secure online payment powered by Stripe (Test Card:{" "}
+                    <code>4242 4242 4242 4242</code>).
                   </div>
                 </div>
               </div>
@@ -264,7 +279,6 @@ function Checkout() {
           </div>
         </div>
 
-        {/* ملخص الطلب */}
         <div className="col-lg-5">
           <div className="card border-0 shadow-sm rounded-4 p-3 p-md-4 bg-white">
             <h5 className="fw-bold mb-4">Your Order ({cart.length} items)</h5>

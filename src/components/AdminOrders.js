@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { fetchOrders, updateOrderStatus } from "../rtk/slices/orders-slice";
@@ -8,9 +8,20 @@ export default function AdminOrders() {
   const dispatch = useDispatch();
   const { items: orders, loading } = useSelector((state) => state.orders);
 
+  const [statusFilter, setStatusFilter] = useState("ALL");
+  const [phoneFilter, setPhoneFilter] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [ordersPerPage, setOrdersPerPage] = useState(10);
+
   useEffect(() => {
     dispatch(fetchOrders());
   }, [dispatch]);
+
+  // إعادة الصفحة للأولى عند تغيير الفلاتر أو البحث
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [statusFilter, phoneFilter, searchQuery, ordersPerPage]);
 
   const handleStatusChange = async (orderId, newStatus) => {
     try {
@@ -46,6 +57,39 @@ export default function AdminOrders() {
     }
   };
 
+  // 1. الفلترة (الحالة + رقم الهاتف + البحث بالاسم أو الهاتف)
+  const filteredOrders = orders.filter((order) => {
+    const matchesStatus =
+      statusFilter === "ALL" || order.status === statusFilter;
+    const matchesPhone = !phoneFilter || order.customer?.phone === phoneFilter;
+    const matchesSearch =
+      !searchQuery ||
+      order.customer?.fullName
+        ?.toLowerCase()
+        .includes(searchQuery.toLowerCase()) ||
+      order.customer?.phone?.includes(searchQuery);
+
+    return matchesStatus && matchesPhone && matchesSearch;
+  });
+
+  // 2. تقسيم الصفحات (Pagination)
+  const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
+  const indexOfLastOrder = currentPage * ordersPerPage;
+  const indexOfFirstOrder = indexOfLastOrder - ordersPerPage;
+  const currentOrders = filteredOrders.slice(
+    indexOfFirstOrder,
+    indexOfLastOrder,
+  );
+
+  const statuses = [
+    "ALL",
+    "Pending",
+    "Processing",
+    "Shipped",
+    "Delivered",
+    "Cancelled",
+  ];
+
   return (
     <div className="container py-5">
       {/* رأس الصفحة */}
@@ -54,9 +98,11 @@ export default function AdminOrders() {
           <span className="badge bg-primary-subtle text-primary rounded-pill px-3 py-1 mb-2 fw-semibold">
             ADMIN PANEL
           </span>
-          <h2 className="fw-bold mb-1">Customer Orders ({orders.length})</h2>
+          <h2 className="fw-bold mb-1">
+            Customer Orders ({filteredOrders.length})
+          </h2>
           <p className="text-muted mb-0">
-            Track and manage incoming customer orders
+            Track payments, customer history, and delivery status
           </p>
         </div>
 
@@ -64,8 +110,77 @@ export default function AdminOrders() {
           to="/admin"
           className="btn btn-outline-primary px-4 py-2 rounded-pill fw-semibold"
         >
-          &larr; Manage Products
+          &larr; Back to Dashboard
         </Link>
+      </div>
+
+      {/* شريط البحث والفلاتر وعدد الصفوف */}
+      <div className="card border-0 shadow-sm rounded-4 mb-4">
+        <div className="card-body p-3 p-md-4">
+          {/* البحث وعدد الصفوف */}
+          <div className="row g-3 align-items-center mb-3">
+            <div className="col-md-8">
+              <input
+                type="text"
+                className="form-control rounded-pill px-4 bg-light border-0"
+                placeholder="🔍 Search by customer name or phone number..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+
+            <div className="col-md-4 d-flex justify-content-md-end">
+              <div className="d-flex align-items-center gap-2 bg-light px-3 py-2 rounded-pill">
+                <label
+                  htmlFor="ordersLimit"
+                  className="text-muted small fw-semibold text-nowrap mb-0"
+                >
+                  Rows per page:
+                </label>
+                <select
+                  id="ordersLimit"
+                  className="form-select form-select-sm border-0 bg-transparent fw-bold shadow-none w-auto py-0"
+                  value={ordersPerPage}
+                  onChange={(e) => setOrdersPerPage(Number(e.target.value))}
+                >
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                  <option value={50}>50</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* أزرار الحالات وفلتر الهاتف */}
+          <div className="d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div className="d-flex flex-wrap gap-2">
+              {statuses.map((st) => (
+                <button
+                  key={st}
+                  className={`btn btn-sm rounded-pill px-3 fw-semibold ${
+                    statusFilter === st ? "btn-primary" : "btn-light text-dark"
+                  }`}
+                  onClick={() => setStatusFilter(st)}
+                >
+                  {st === "ALL" ? "All Orders" : st}
+                </button>
+              ))}
+            </div>
+
+            {phoneFilter && (
+              <div className="d-flex align-items-center gap-2 bg-primary-subtle text-primary px-3 py-1 rounded-pill small fw-semibold">
+                <span>Showing history for: {phoneFilter}</span>
+                <button
+                  type="button"
+                  className="btn-close btn-close-sm"
+                  aria-label="Clear filter"
+                  onClick={() => setPhoneFilter(null)}
+                ></button>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* جدول الطلبات */}
@@ -78,11 +193,11 @@ export default function AdminOrders() {
               </div>
               <p className="text-muted mt-2 mb-0">Loading orders...</p>
             </div>
-          ) : orders.length === 0 ? (
+          ) : currentOrders.length === 0 ? (
             <div className="text-center py-5 my-4">
-              <h5 className="fw-bold text-muted">No orders yet</h5>
+              <h5 className="fw-bold text-muted">No matching orders found</h5>
               <p className="text-muted small mb-0">
-                When customers place orders, they will appear here.
+                Try clearing filters or wait for new customer orders.
               </p>
             </div>
           ) : (
@@ -91,38 +206,75 @@ export default function AdminOrders() {
                 <thead className="table-light">
                   <tr>
                     <th className="ps-4 py-3">Customer</th>
-                    <th className="py-3">Address</th>
+                    <th className="py-3">Address & Notes</th>
                     <th className="py-3">Items</th>
+                    <th className="py-3">Payment</th>
                     <th className="py-3">Total</th>
                     <th className="py-3">Date</th>
-                    <th className="pe-4 py-3 text-end">Status</th>
+                    <th className="pe-5 py-3 ">Status</th>
+                    <th className="pe-5 py-3 text-end">Details</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {orders.map((order) => (
+                  {currentOrders.map((order) => (
                     <tr key={order._id}>
-                      {/* بيانات العميل */}
+                      {/* بيانات العميل + زر عرض طلباته السابقة */}
                       <td className="ps-4 py-3">
-                        <div className="fw-bold text-dark">
+                        <div className="fw-bold text-dark mb-1" text-nowrap>
                           {order.customer?.fullName}
                         </div>
-                        <small className="text-muted">
-                          📞 {order.customer?.phone}
-                        </small>
+
+                        <div className="d-flex align-items-center gap-2 text-nowrap">
+                          <button
+                            type="button"
+                            className="btn btn-link p-0 text-decoration-none small text-primary"
+                            title="Click to view all orders by this phone number"
+                            onClick={() =>
+                              setPhoneFilter(order.customer?.phone)
+                            }
+                          >
+                            📞 {order.customer?.phone}
+                          </button>
+
+                          {order.user ? (
+                            <span
+                              className="badge bg-info-subtle text-info-emphasis rounded-pill"
+                              title="Registered User"
+                            >
+                              Member
+                            </span>
+                          ) : (
+                            <span
+                              className="badge bg-light text-muted border rounded-pill"
+                              title="Guest Checkout"
+                            >
+                              Guest
+                            </span>
+                          )}
+                        </div>
                       </td>
 
-                      {/* العنوان */}
+                      {/* العنوان والملاحظات */}
                       <td>
                         <div className="small fw-semibold">
                           {order.customer?.city}
                         </div>
                         <div
                           className="text-muted small text-truncate"
-                          style={{ maxWidth: "200px" }}
+                          style={{ maxWidth: "180px" }}
                           title={order.customer?.address}
                         >
                           {order.customer?.address}
                         </div>
+                        {order.customer?.notes && (
+                          <div
+                            className="text-warning-emphasis small mt-1 text-truncate"
+                            style={{ maxWidth: "180px" }}
+                            title={order.customer?.notes}
+                          >
+                            📝 {order.customer?.notes}
+                          </div>
+                        )}
                       </td>
 
                       {/* المنتجات المطلوبة */}
@@ -137,6 +289,19 @@ export default function AdminOrders() {
                             </span>
                           ))}
                         </div>
+                      </td>
+
+                      {/* طريقة الدفع */}
+                      <td>
+                        {order.customer?.paymentMethod === "STRIPE" ? (
+                          <span className="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
+                            💳 Stripe (Paid)
+                          </span>
+                        ) : (
+                          <span className="badge bg-secondary-subtle text-secondary px-2 py-1">
+                            💵 COD
+                          </span>
+                        )}
                       </td>
 
                       {/* الإجمالي */}
@@ -154,7 +319,7 @@ export default function AdminOrders() {
                       {/* تغيير الحالة */}
                       <td className="pe-4 text-end">
                         <select
-                          className={`form-select form-select-sm d-inline-block w-auto fw-semibold rounded-pill border-0 px-3 ${getStatusBadge(
+                          className={`form-select form-select-sm d-inline-block w-auto fw-semibold rounded-pill border-0 ps-3 pe-5 ${getStatusBadge(
                             order.status,
                           )}`}
                           value={order.status}
@@ -169,6 +334,14 @@ export default function AdminOrders() {
                           <option value="Cancelled">Cancelled</option>
                         </select>
                       </td>
+                      <td className="pe-4 text-end">
+                        <Link
+                          to={`/orders/${order._id}`}
+                          className="btn btn-sm btn-outline-primary rounded-pill px-3"
+                        >
+                          Details
+                        </Link>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -177,6 +350,56 @@ export default function AdminOrders() {
           )}
         </div>
       </div>
+
+      {/* أزرار التنقل بين الصفحات (Pagination) */}
+      {totalPages > 1 && (
+        <nav className="mt-4">
+          <ul className="pagination justify-content-center gap-1">
+            <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+              <button
+                className="page-link rounded-3 border-0 shadow-sm"
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+              >
+                &laquo; Prev
+              </button>
+            </li>
+
+            {Array.from({ length: totalPages }, (_, index) => {
+              const page = index + 1;
+              return (
+                <li
+                  key={page}
+                  className={`page-item ${currentPage === page ? "active" : ""}`}
+                >
+                  <button
+                    className="page-link rounded-3 border-0 shadow-sm fw-semibold"
+                    onClick={() => setCurrentPage(page)}
+                  >
+                    {page}
+                  </button>
+                </li>
+              );
+            })}
+
+            <li
+              className={`page-item ${
+                currentPage === totalPages ? "disabled" : ""
+              }`}
+            >
+              <button
+                className="page-link rounded-3 border-0 shadow-sm"
+                onClick={() =>
+                  setCurrentPage((p) => Math.min(totalPages, p + 1))
+                }
+                disabled={currentPage === totalPages}
+              >
+                Next &raquo;
+              </button>
+            </li>
+          </ul>
+        </nav>
+      )}
     </div>
   );
 }
