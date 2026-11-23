@@ -17,6 +17,7 @@ import Login from "./components/Login";
 import Register from "./components/Register";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Wishlist from "./components/Wishlist";
+import PaymentSuccess from "./components/PaymentSuccess";
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
               </>
             }
           />
+          <Route path="payment-success" element={<PaymentSuccess />} />
           <Route path="wishlist" element={<Wishlist />} />
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
