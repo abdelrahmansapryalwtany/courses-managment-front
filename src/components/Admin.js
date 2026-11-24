@@ -109,6 +109,12 @@ function Admin() {
 
         <div className="d-flex flex-wrap gap-2">
           <Link
+            to="/admin/system-jobs"
+            className="btn btn-outline-dark rounded-pill px-4 py-2 fw-semibold"
+          >
+            ⏰ System Jobs & Webhooks
+          </Link>
+          <Link
             className="btn btn-outline-dark px-4 py-2 rounded-pill fw-semibold"
             to="/admin/users"
           >

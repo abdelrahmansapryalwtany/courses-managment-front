@@ -23,6 +23,7 @@ import AdminUsers from "./components/AdminUsers";
 import OrderDetails from "./components/OrderDetails";
 import FeaturesBar from "./components/FeaturesBar";
 import Profile from "./components/Profile";
+import SystemJobs from "./components/SystemJobs";
 
 function App() {
   return (
@@ -51,6 +52,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="/admin/system-jobs" element={<SystemJobs />} />
           <Route path="profile" element={<Profile />} />
           <Route path="orders/:orderId" element={<OrderDetails />} />
           <Route path="my-orders" element={<MyOrders />} />

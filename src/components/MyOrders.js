@@ -26,7 +26,7 @@ export default function MyOrders() {
     <div className="container py-5">
       <h2 className="fw-bold mb-1">My Orders</h2>
       <p className="text-muted mb-4">
-        Track your previous purchases and order status
+        Track your previous purchases and live shipment status
       </p>
 
       {loading ? (
@@ -50,20 +50,33 @@ export default function MyOrders() {
               className="card border-0 shadow-sm rounded-4 p-4"
             >
               <div className="d-flex flex-wrap justify-content-between align-items-center border-bottom pb-3 mb-3 gap-2">
-                <div>
-                  <span className="text-muted small">Order Date: </span>
-                  <span className="fw-semibold">
+                <div className="d-flex flex-wrap align-items-center gap-2">
+                  <span className="badge bg-light text-dark border font-monospace">
+                    #{order._id.slice(-8).toUpperCase()}
+                  </span>
+                  <span className="text-muted small">
                     {new Date(order.createdAt).toLocaleDateString()}
                   </span>
-                  <span className="badge bg-light text-dark border ms-2">
+                  <span className="badge bg-light text-dark border">
                     {order.customer?.paymentMethod}
                   </span>
+                  {order.trackingNumber && (
+                    <span className="badge bg-info-subtle text-info-emphasis border border-info-subtle font-monospace">
+                      🚚 {order.trackingNumber}
+                    </span>
+                  )}
                 </div>
 
-                <div>
+                <div className="d-flex align-items-center gap-2">
                   <span className="badge bg-primary-subtle text-primary rounded-pill px-3 py-2">
                     {order.status}
                   </span>
+                  <Link
+                    to={`/orders/${order._id}`}
+                    className="btn btn-sm btn-outline-primary rounded-pill px-3 fw-semibold"
+                  >
+                    Track Order &rarr;
+                  </Link>
                 </div>
               </div>
 
