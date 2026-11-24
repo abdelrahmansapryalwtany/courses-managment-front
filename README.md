@@ -1,70 +1,110 @@
-# Getting Started with Create React App
+# 🛒 MyStore — Full-Stack MERN E-Commerce Platform
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A modern, scalable full-stack e-commerce web application built with the **MERN Stack (MongoDB, Express.js, React, Node.js)** and **Redux Toolkit**. It features role-based access control (Admin, Manager, User), Stripe online payments, server-side search & pagination, order status audit logs, and persistent cart/wishlist management.
 
-## Available Scripts
+🔗 **Live Demo:** [https://vercel.app](https://vercel.app)
 
-In the project directory, you can run:
+---
 
-### `npm start`
+## ✨ Key Features
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### 🛍️ Customer Experience
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- **Product Catalog & Server-Side Search:** Instant debounced search across the entire database, category filtering, max price filtering, sorting (Low to High / High to Low), and dynamic pagination.
+- **Persistent Cart & Wishlist:** Powered by Redux Toolkit and `localStorage` so items remain saved across browser sessions.
+- **Flexible Checkout (Guest & Member):** Supports both fast **Guest Checkout** and **Logged-in User Checkout** (linking orders to user accounts).
+- **Dual Payment Methods:** Supports **Cash on Delivery (COD)** and encrypted online card payments via **Stripe Checkout (Test Mode)**.
+- **User Profile & Order Tracking:** Authenticated users can view their order history (`My Orders`), inspect full order details, and update their profile name and avatar.
 
-### `npm test`
+### 🎛️ Admin & Manager Dashboard (RBAC)
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- **Role-Based Access Control:** Three distinct permission tiers (`ADMIN`, `MANAGER`, `USER`) enforced on both the React frontend (`ProtectedRoute`) and Express backend (`verifyToken` & `allowedTo` middlewares).
+- **Live Store Analytics:** Overview cards displaying total revenue, order counts (with pending alerts), catalog stats, and registered users.
+- **Product Management (CRUD):** Add, edit, and delete products with image uploads handled via `Multer`.
+- **Order Management & Audit Log:** Filter orders by status or customer phone number, update order statuses (`Pending`, `Processing`, `Shipped`, `Delivered`, `Cancelled`), and view a full **Status History Timeline** recording who updated each status and when.
+- **User Management (Admin Only):** Search registered users, update user roles, and manage accounts with built-in protection for demo admin accounts.
 
-### `npm run build`
+---
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## 🛠️ Tech Stack
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+**Frontend:**
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- React.js (React Router v6)
+- Redux Toolkit (Async Thunks & State Slices)
+- Bootstrap 5 & Custom CSS
+- SweetAlert2 (Toast notifications & confirmation modals)
 
-### `npm run eject`
+**Backend:**
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+- Node.js & Express.js (ES Modules)
+- MongoDB & Mongoose ODM
+- JSON Web Tokens (JWT) & `bcryptjs` for authentication
+- `Multer` for image uploads (Avatars & Products)
+- Stripe API for payment processing
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+---
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## 🔑 Demo Credentials
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+You can test the role-based dashboard directly on the live site using the **Quick Demo Login** buttons on the `/login` page:
 
-## Learn More
+| Role        | Access Level                                                       |
+| :---------- | :----------------------------------------------------------------- |
+| **ADMIN**   | Full access: Products, Orders, Analytics, and User Role Management |
+| **MANAGER** | Operational access: Products, Orders, and View-Only Users list     |
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+_(For Stripe test payments, use card number `4242 4242 4242 4242` with any future expiry date and 3-digit CVC)._
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+---
 
-### Code Splitting
+## ⚙️ Environment Variables
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+To run this project locally, create a `.env` file in both the backend and frontend directories:
 
-### Analyzing the Bundle Size
+### Backend (`.env`)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+```env
+PORT=5000
+MONGO_URL=your_mongodb_connection_string
+JWT_SECRET_KEY=your_jwt_secret_key
+STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key
+CLIENT_URL=http://localhost:3000
+```
 
-### Making a Progressive Web App
+### Frontend (`.env`)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+```env
+REACT_APP_API_URL=http://localhost:5000
+```
 
-### Advanced Configuration
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## 🚀 Getting Started Locally
 
-### Deployment
+1. **Clone the repository:**
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+   ```bash
+   git clone https://github.com
+   ```
 
-### `npm run build` fails to minify
+2. **Install & run the Backend:**
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+   ```bash
+   cd node
+   npm install
+   npm start
+   ```
+
+3. **Install & run the Frontend:**
+   ```bash
+   cd react
+   npm install
+   npm start
+   ```
+
+---
+
+## 👨‍💻 Author
+
+Developed by **Abdel-Rhman** — Full-Stack MERN Developer.
