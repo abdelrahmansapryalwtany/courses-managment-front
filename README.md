@@ -2,9 +2,19 @@
 
 A modern, scalable full-stack e-commerce web application built with the **MERN Stack (MongoDB, Express.js, React, Node.js)** and **Redux Toolkit**. It features role-based access control (Admin, Manager, User), Stripe online payments, server-side search & pagination, order status audit logs, and persistent cart/wishlist management.
 
-🔗 **Live Demo:** [https://vercel.app](https://vercel.app)
+🔗 **Live Demo:** [https://courses-managment-front-livid.vercel.app/](https://courses-managment-front-livid.vercel.app/)
 
 ---
+
+## 📸 Screenshots
+
+|        Home & Product Catalog        |          Checkout & Stripe Payment           |
+| :----------------------------------: | :------------------------------------------: |
+| ![Home Page](./screenshots/home.png) | ![Checkout Page](./screenshots/checkout.png) |
+
+|         Admin Dashboard & Analytics         |        Order Management & Timeline        |
+| :-----------------------------------------: | :---------------------------------------: |
+| ![Admin Dashboard](./screenshots/admin.png) | ![Admin Orders](./screenshots/orders.png) |
 
 ## ✨ Key Features
 
