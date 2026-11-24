@@ -18,7 +18,6 @@ export default function AdminOrders() {
     dispatch(fetchOrders());
   }, [dispatch]);
 
-  // إعادة الصفحة للأولى عند تغيير الفلاتر أو البحث
   useEffect(() => {
     setCurrentPage(1);
   }, [statusFilter, phoneFilter, searchQuery, ordersPerPage]);
@@ -57,7 +56,6 @@ export default function AdminOrders() {
     }
   };
 
-  // 1. الفلترة (الحالة + رقم الهاتف + البحث بالاسم أو الهاتف)
   const filteredOrders = orders.filter((order) => {
     const matchesStatus =
       statusFilter === "ALL" || order.status === statusFilter;
@@ -72,7 +70,6 @@ export default function AdminOrders() {
     return matchesStatus && matchesPhone && matchesSearch;
   });
 
-  // 2. تقسيم الصفحات (Pagination)
   const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
   const indexOfLastOrder = currentPage * ordersPerPage;
   const indexOfFirstOrder = indexOfLastOrder - ordersPerPage;
@@ -92,7 +89,6 @@ export default function AdminOrders() {
 
   return (
     <div className="container py-5">
-      {/* رأس الصفحة */}
       <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
         <div>
           <span className="badge bg-primary-subtle text-primary rounded-pill px-3 py-1 mb-2 fw-semibold">
@@ -114,10 +110,8 @@ export default function AdminOrders() {
         </Link>
       </div>
 
-      {/* شريط البحث والفلاتر وعدد الصفوف */}
       <div className="card border-0 shadow-sm rounded-4 mb-4">
         <div className="card-body p-3 p-md-4">
-          {/* البحث وعدد الصفوف */}
           <div className="row g-3 align-items-center mb-3">
             <div className="col-md-8">
               <input
@@ -152,7 +146,6 @@ export default function AdminOrders() {
             </div>
           </div>
 
-          {/* أزرار الحالات وفلتر الهاتف */}
           <div className="d-flex flex-wrap justify-content-between align-items-center gap-2">
             <div className="d-flex flex-wrap gap-2">
               {statuses.map((st) => (
@@ -183,7 +176,6 @@ export default function AdminOrders() {
         </div>
       </div>
 
-      {/* جدول الطلبات */}
       <div className="card border-0 shadow-sm rounded-4 overflow-hidden">
         <div className="card-body p-0">
           {loading ? (
@@ -211,16 +203,15 @@ export default function AdminOrders() {
                     <th className="py-3">Payment</th>
                     <th className="py-3">Total</th>
                     <th className="py-3">Date</th>
-                    <th className="pe-5 py-3 ">Status</th>
+                    <th className="pe-5 py-3">Status & Tracking</th>
                     <th className="pe-5 py-3 text-end">Details</th>
                   </tr>
                 </thead>
                 <tbody>
                   {currentOrders.map((order) => (
                     <tr key={order._id}>
-                      {/* بيانات العميل + زر عرض طلباته السابقة */}
                       <td className="ps-4 py-3">
-                        <div className="fw-bold text-dark mb-1" text-nowrap>
+                        <div className="fw-bold text-dark mb-1 text-nowrap">
                           {order.customer?.fullName}
                         </div>
 
@@ -254,7 +245,6 @@ export default function AdminOrders() {
                         </div>
                       </td>
 
-                      {/* العنوان والملاحظات */}
                       <td>
                         <div className="small fw-semibold">
                           {order.customer?.city}
@@ -277,7 +267,6 @@ export default function AdminOrders() {
                         )}
                       </td>
 
-                      {/* المنتجات المطلوبة */}
                       <td>
                         <div className="d-flex flex-column gap-1">
                           {order.items?.map((item, idx) => (
@@ -291,7 +280,6 @@ export default function AdminOrders() {
                         </div>
                       </td>
 
-                      {/* طريقة الدفع */}
                       <td>
                         {order.customer?.paymentMethod === "STRIPE" ? (
                           <span className="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
@@ -304,19 +292,16 @@ export default function AdminOrders() {
                         )}
                       </td>
 
-                      {/* الإجمالي */}
                       <td>
                         <span className="fw-bold text-primary">
                           ${Number(order.totalPrice).toFixed(2)}
                         </span>
                       </td>
 
-                      {/* التاريخ */}
                       <td className="text-muted small">
                         {new Date(order.createdAt).toLocaleDateString()}
                       </td>
 
-                      {/* تغيير الحالة */}
                       <td className="pe-4 text-end">
                         <select
                           className={`form-select form-select-sm d-inline-block w-auto fw-semibold rounded-pill border-0 ps-3 pe-5 ${getStatusBadge(
@@ -333,6 +318,11 @@ export default function AdminOrders() {
                           <option value="Delivered">Delivered</option>
                           <option value="Cancelled">Cancelled</option>
                         </select>
+                        {order.trackingNumber && (
+                          <div className="small text-primary font-monospace mt-1">
+                            🚚 {order.trackingNumber}
+                          </div>
+                        )}
                       </td>
                       <td className="pe-4 text-end">
                         <Link
@@ -351,7 +341,6 @@ export default function AdminOrders() {
         </div>
       </div>
 
-      {/* أزرار التنقل بين الصفحات (Pagination) */}
       {totalPages > 1 && (
         <nav className="mt-4">
           <ul className="pagination justify-content-center gap-1">

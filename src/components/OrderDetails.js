@@ -14,6 +14,7 @@ export default function OrderDetails() {
   const [errorMsg, setErrorMsg] = useState(null);
   const [statusNote, setStatusNote] = useState("");
   const [updating, setUpdating] = useState(false);
+  const [shipping, setShipping] = useState(false);
 
   const isStaff = user?.role === "ADMIN" || user?.role === "MANAGER";
 
@@ -67,6 +68,46 @@ export default function OrderDetails() {
     }
   };
 
+  const handleCreateShipment = async () => {
+    setShipping(true);
+    try {
+      const res = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/orders/${order._id}/ship`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to create shipment");
+
+      setOrder(data.data.order);
+      Toast.fire({
+        icon: "success",
+        title: `Shipped! Tracking #: ${data.data.shipment.trackingNumber}`,
+      });
+    } catch (err) {
+      Toast.fire({
+        icon: "error",
+        title: err.message,
+      });
+    } finally {
+      setShipping(false);
+    }
+  };
+
+  const handleCopyTracking = () => {
+    if (!order?.trackingNumber) return;
+    navigator.clipboard.writeText(order.trackingNumber);
+    Toast.fire({
+      icon: "success",
+      title: "Tracking number copied!",
+    });
+  };
+
   const getStatusBadge = (status) => {
     switch (status) {
       case "Pending":
@@ -111,7 +152,6 @@ export default function OrderDetails() {
 
   return (
     <div className="container py-5">
-      {/* رأس الصفحة */}
       <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
         <div>
           <div className="d-flex align-items-center gap-2 mb-1">
@@ -141,9 +181,49 @@ export default function OrderDetails() {
       </div>
 
       <div className="row g-4">
-        {/* العمود الأيسر: المنتجات + الخط الزمني للتغييرات */}
         <div className="col-lg-8">
-          {/* جدول المنتجات */}
+          {order.trackingNumber && (
+            <div className="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-primary-subtle border-start border-4 border-primary">
+              <div className="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div>
+                  <span className="badge bg-primary rounded-pill mb-2">
+                    🚚 Carrier Shipment Active
+                  </span>
+                  <h6 className="fw-bold text-dark mb-1">
+                    Tracking Number:{" "}
+                    <span className="font-monospace text-primary">
+                      {order.trackingNumber}
+                    </span>
+                  </h6>
+                  <p className="text-muted small mb-0">
+                    Real-time carrier updates are automatically logged below via
+                    Webhooks.
+                  </p>
+                </div>
+
+                <div className="d-flex gap-2">
+                  <button
+                    type="button"
+                    onClick={handleCopyTracking}
+                    className="btn btn-sm btn-light border rounded-pill px-3 fw-semibold"
+                  >
+                    📋 Copy Code
+                  </button>
+                  {order.shippingLabelUrl && (
+                    <a
+                      href={order.shippingLabelUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="btn btn-sm btn-primary rounded-pill px-3 fw-semibold"
+                    >
+                      📄 Shipping Label
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
             <div className="card-header bg-white border-0 pt-4 px-4">
               <h5 className="fw-bold mb-0">
@@ -207,7 +287,6 @@ export default function OrderDetails() {
             </div>
           </div>
 
-          {/* الخط الزمني لتتبع تغييرات الطلب (Order History Timeline) */}
           <div className="card border-0 shadow-sm rounded-4 p-4">
             <h5 className="fw-bold mb-4">🕒 Order Activity & Status History</h5>
 
@@ -219,7 +298,6 @@ export default function OrderDetails() {
               <div className="border-start border-2 border-primary ps-4 ms-2 d-flex flex-column gap-4">
                 {[...order.statusHistory].reverse().map((entry, idx) => (
                   <div key={idx} className="position-relative">
-                    {/* نقطة التايم لاين */}
                     <span
                       className="position-absolute bg-primary rounded-circle border border-3 border-white shadow-sm"
                       style={{
@@ -263,12 +341,33 @@ export default function OrderDetails() {
           </div>
         </div>
 
-        {/* العمود الأيمن: بيانات العميل + الدفع + تحديث الحالة للأدمن */}
         <div className="col-lg-4 d-flex flex-column gap-4">
-          {/* لوحة تحديث الحالة للأدمن والمدير فقط */}
           {isStaff && (
             <div className="card border-0 shadow-sm rounded-4 p-4 bg-white">
-              <h6 className="fw-bold mb-3">⚙️ Update Order Status</h6>
+              <h6 className="fw-bold mb-3">⚙️ Order Fulfillment & Status</h6>
+
+              {!order.trackingNumber && order.status !== "Cancelled" && (
+                <div className="mb-3 pb-3 border-bottom">
+                  <button
+                    type="button"
+                    disabled={shipping}
+                    onClick={handleCreateShipment}
+                    className="btn btn-dark w-100 rounded-pill fw-semibold d-flex align-items-center justify-content-center gap-2"
+                  >
+                    {shipping ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm" />
+                        Generating Label...
+                      </>
+                    ) : (
+                      "🚚 Ship via EasyPost (Sandbox)"
+                    )}
+                  </button>
+                  <small className="text-muted d-block text-center mt-1">
+                    Generates tracking code & label PDF automatically
+                  </small>
+                </div>
+              )}
 
               <div className="mb-3">
                 <label className="form-label small text-muted fw-semibold">
@@ -309,7 +408,6 @@ export default function OrderDetails() {
             </div>
           )}
 
-          {/* بيانات العميل والشحن */}
           <div className="card border-0 shadow-sm rounded-4 p-4 bg-white">
             <h6 className="fw-bold mb-3">📍 Customer & Shipping</h6>
             <div className="d-flex flex-column gap-2 small">
@@ -348,7 +446,6 @@ export default function OrderDetails() {
             </div>
           </div>
 
-          {/* ملخص الدفع */}
           <div className="card border-0 shadow-sm rounded-4 p-4 bg-white">
             <h6 className="fw-bold mb-3">💳 Payment Summary</h6>
             <div className="d-flex justify-content-between align-items-center mb-2 small">
