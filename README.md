@@ -10,11 +10,11 @@ A modern, scalable full-stack e-commerce web application built with the **MERN S
 
 |        Home & Product Catalog        |          Checkout & Stripe Payment           |
 | :----------------------------------: | :------------------------------------------: |
-| ![Home Page](./screenshots/Home.png) | ![Checkout Page](./screenshots/CheckOut.png) |
+| ![Home Page](./screenshots/Home.PNG) | ![Checkout Page](./screenshots/CheckOut.PNG) |
 
 |         Admin Dashboard & Analytics         |        Order Management & Timeline        |
 | :-----------------------------------------: | :---------------------------------------: |
-| ![Admin Dashboard](./screenshots/Admin.png) | ![Admin Orders](./screenshots/Orders.png) |
+| ![Admin Dashboard](./screenshots/Admin.PNG) | ![Admin Orders](./screenshots/Orders.PNG) |
 
 ## ✨ Key Features
 
